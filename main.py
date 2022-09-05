@@ -36,7 +36,6 @@ def get_color():
     get_colors = lambda n: list(map(lambda i: "#" + "%06x" % random.randint(0, 0xFFFFFF), range(n)))
     color_list = get_colors(100)
     return random.choice(color_list)
-print(get_color())
 
 def get_access_token():
     # appId
@@ -52,7 +51,6 @@ def get_access_token():
         os.system("pause")
         sys.exit(1)
     return access_token
-print(get_access_token())
 
 def get_weather():
     region = '青岛'
@@ -85,7 +83,6 @@ def get_weather():
     # 风向
     wind_dir = response["now"]["windDir"]
     return date,weather,temp,wind_dir
-print(get_weather())
 
 def get_birthday():
     wen = datetime.strptime('2023-08-03 08:00:00','%Y-%m-%d %H:%M:%S')
@@ -95,7 +92,6 @@ def get_birthday():
     yu_birthday = yu-now
     birthday = f"小文的生日：2002年08月03日，距离生日还有{wen_birthday.days}天\n小鱼的生日：1998年08月04日，距离生日还有{yu_birthday.days}天"
     return birthday
-print(get_birthday())
 
 def get_love():
     object = datetime.strptime('2021-04-16 08:00:00','%Y-%m-%d %H:%M:%S')
@@ -107,7 +103,6 @@ def get_love():
     minute = (delta.seconds -hour*60*60)/60
     love_time = f"恋爱纪念日：2021年4月17日，小文和小鱼的爱情故事已经写到第{delta.days}天啦！"
     return love_time
-print(get_love())
 
 def get_ciba():
     url = "http://open.iciba.com/dsapi/"
@@ -120,7 +115,6 @@ def get_ciba():
     note_en = r.json()["content"]
     note_ch = r.json()["note"]
     return note_ch,note_en
-print(get_ciba())
 
 def send_message(to_user, access_token, region_name, weather, temp, wind_dir,birthday,loveday,note_ch, note_en):
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={}".format(access_token)
@@ -186,7 +180,6 @@ def send_message(to_user, access_token, region_name, weather, temp, wind_dir,bir
             },
         }
     }
-    return data
 
 if __name__ == "__main__":
     access_token = get_access_token()
@@ -199,7 +192,7 @@ if __name__ == "__main__":
     birthday = get_birthday()
     loveday = get_love()
 
-    # # 公众号推送消息
+    # 公众号推送消息
     for user in users:
         send_message(user,access_token,region,weather,temp,wind_dir,birthday,loveday,note_ch,note_en)
     os.system("pause")
