@@ -1,14 +1,11 @@
+import os
 import random
 from time import localtime
 from requests import get,post
 import requests
-import json
-from json import loads
-from datetime import datetime, date
-from zhdate import ZhDate
 from datetime import datetime
 import sys
-import os
+
 
 config = {
 # 公众号配置
@@ -17,7 +14,7 @@ config = {
 # 公众号appSecret
 "app_secret": "d3e9909a7e3d21a977ae66e3b7c9970f",
 # 模板消息id
-"template_id": "F-xQmyGKROzDLoJIBrN7GUrUaOQPXoZu64uP5HCcC1w",
+"template_id": "kdxFH9nqJDpJJSVG7H9bgZxQJNTIFFZAIxEj0HKRick",
 # 接收公众号消息的微信号，如果有多个，需要在[]里用英文逗号间隔，例如["wx1", "wx2"]
 "user": ["otDUI6ql70CemmO_zlOj1Pl7ntlc"],
 # 信息配置
@@ -84,13 +81,19 @@ def get_weather():
     wind_dir = response["now"]["windDir"]
     return date,weather,temp,wind_dir
 
+def special_date():
+    special = datetime.strptime('2022-10-01 08:00:00', '%Y-%m-%d %H:%M:%S')
+    now = datetime.now()
+    spe = special-now
+    msg = spe.days
+    remind = "今天也是爱宝宝崽的一天！天凉了，注意保暖喔~"
+    return msg,remind
+
 def get_birthday():
-    wen = datetime.strptime('2023-08-03 08:00:00','%Y-%m-%d %H:%M:%S')
     yu = datetime.strptime('2023-08-04 08:00:00','%Y-%m-%d %H:%M:%S')
     now = datetime.now()
-    wen_birthday = wen-now
     yu_birthday = yu-now
-    birthday = f"小文的生日：2002年08月03日，距离生日还有{wen_birthday.days}天\n小鱼的生日：1998年08月04日，距离生日还有{yu_birthday.days}天"
+    birthday = f"小文的生日:8月3日，宝宝崽的生日：8月4日，距离生日还有{yu_birthday.days}天"
     return birthday
 
 def get_love():
@@ -99,9 +102,9 @@ def get_love():
     now=datetime.now()
     #时间差
     delta = now-object
-    hour = delta.seconds/60/60
-    minute = (delta.seconds -hour*60*60)/60
-    love_time = f"恋爱纪念日：2021年4月17日，小文和小鱼的爱情故事已经写到第{delta.days}天啦！"
+    # hour = delta.seconds/60/60
+    # minute = (delta.seconds -hour*60*60)/60
+    love_time = f"恋爱纪念日：2021年4月17日，小文和小鱼的爱情故事已经谱写到第{delta.days}页啦！"
     return love_time
 
 def get_ciba():
@@ -116,7 +119,7 @@ def get_ciba():
     note_ch = r.json()["note"]
     return note_ch,note_en
 
-def send_message(to_user, access_token, region_name, weather, temp, wind_dir,birthday,loveday,note_ch, note_en):
+def send_message(to_user,access_token,region_name,weather,temp,wind_dir,msg,remind,birthday,loveday,note_ch,note_en):
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={}".format(access_token)
     week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
     year = localtime().tm_year
@@ -124,15 +127,6 @@ def send_message(to_user, access_token, region_name, weather, temp, wind_dir,bir
     day = localtime().tm_mday
     today = datetime.date(datetime(year=year, month=month, day=day))
     week = week_list[today.isoweekday() % 7]
-    # 获取在一起的日子的日期格式
-    # love_year = int(config["love_date"].split("-")[0])
-    # love_month = int(config["love_date"].split("-")[1])
-    # love_day = int(config["love_date"].split("-")[2])
-    # love_date = date(love_year, love_month, love_day)
-    # 获取在一起的日期差
-    # love_days = str(today.__sub__(love_date)).split(" ")[0]
-    # 获取所有生日数据
-    # birthdays = {}
     for k, v in config.items():
         if k[0:5] == "birth":
             birthdays[k] = v
@@ -162,6 +156,14 @@ def send_message(to_user, access_token, region_name, weather, temp, wind_dir,bir
                 "value": wind_dir,
                 "color": get_color()
             },
+            "msg": {
+                "value": msg,
+                "color": get_color()
+            },
+            "remind": {
+                "value": remind,
+                "color": get_color()
+            },
             "birthday": {
                 "value": birthday,
                 "color": get_color()
@@ -180,6 +182,22 @@ def send_message(to_user, access_token, region_name, weather, temp, wind_dir,bir
             },
         }
     }
+    headers = {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
+    }
+    response = post(url, headers=headers, json=data).json()
+    if response["errcode"] == 40037:
+        print("推送消息失败，请检查模板id是否正确")
+    elif response["errcode"] == 40036:
+        print("推送消息失败，请检查模板id是否为空")
+    elif response["errcode"] == 40003:
+        print("推送消息失败，请检查微信号是否正确")
+    elif response["errcode"] == 0:
+        print("推送消息成功")
+    else:
+        print(response)
 
 if __name__ == "__main__":
     access_token = get_access_token()
@@ -188,11 +206,12 @@ if __name__ == "__main__":
     users = config["user"]
     # 传入地区获取天气信息
     date,weather,temp,wind_dir = get_weather()
+    msg,remind = special_date()
     note_ch,note_en = get_ciba()
     birthday = get_birthday()
     loveday = get_love()
 
     # 公众号推送消息
     for user in users:
-        send_message(user,access_token,region,weather,temp,wind_dir,birthday,loveday,note_ch,note_en)
+        send_message(user,access_token,region,weather,temp,wind_dir,msg,remind,birthday,loveday,note_ch,note_en)
     os.system("pause")
