@@ -16,7 +16,7 @@ config = {
 # 模板消息id
 "template_id": "kdxFH9nqJDpJJSVG7H9bgZxQJNTIFFZAIxEj0HKRick",
 # 接收公众号消息的微信号，如果有多个，需要在[]里用英文逗号间隔，例如["wx1", "wx2"]
-"user": ["otDUI6ql70CemmO_zlOj1Pl7ntlc"],
+"user": ["otDUI6ql70CemmO_zlOj1Pl7ntlc","otDUI6szqoknNUGeL-p9FA0LKhQU"],
 # 信息配置
 # 所在地区，可为省，城市，区，县，同时支持国外城市，例如伦敦
 "region": "青岛",
