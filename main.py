@@ -104,7 +104,7 @@ def get_love():
     delta = now-object
     # hour = delta.seconds/60/60
     # minute = (delta.seconds -hour*60*60)/60
-    love_time = f"恋爱纪念日：2021年4月17日，小文和小鱼的爱情故事已经谱写到第{delta.days}页啦！"
+    love_time = f"恋爱纪念日：2021年4月17日，小文和小鱼的爱情故事已经谱写到第{delta.days+1}页啦！"
     return love_time
 
 def get_ciba():
